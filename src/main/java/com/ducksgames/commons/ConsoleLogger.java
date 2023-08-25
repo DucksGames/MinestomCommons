@@ -17,7 +17,7 @@ import static net.kyori.adventure.text.minimessage.MiniMessage.miniMessage;
 public class ConsoleLogger {
     public static final Logger LOGGER = LoggerFactory.getLogger("");
 
-    public static void enable() {
+    public static void enable(EventNode parent) {
         EventNode<PlayerEvent> playerLoggerNode = EventNode.value("player-logger", EventFilter.PLAYER, p -> !(p instanceof FakePlayer));
         playerLoggerNode
                 .addListener(PlayerChatEvent.class, event -> LOGGER.info(miniMessage().serialize(event.getChatFormatFunction().apply(event))))
@@ -26,7 +26,11 @@ public class ConsoleLogger {
                 .addListener(PlayerCommandEvent.class, event -> LOGGER.info(String.format("%s issued server command: /%s", event.getPlayer().getUsername(), event.getCommand())))
         ;
         playerLoggerNode.setPriority(Integer.MAX_VALUE);
-        MinecraftServer.getGlobalEventHandler().addChild(playerLoggerNode);
+        parent.addChild(playerLoggerNode);
+    }
+
+    public static void enable() {
+        enable(MinecraftServer.getGlobalEventHandler());
     }
 
 }
